@@ -91,7 +91,7 @@ public class DataGenerator {
     GroupWriteSupport.setSchema(schema, configuration);
     SimpleGroupFactory f = new SimpleGroupFactory(schema);
     ParquetWriter<Group> writer = new ParquetWriter<Group>(outFile, new GroupWriteSupport(), codec, blockSize,
-                                                           pageSize, DICT_PAGE_SIZE, true, false, version, configuration);
+                                                           pageSize, DICT_PAGE_SIZE, false, true, version, configuration);
 
     //generate some data for the fixed len byte array field
     char[] chars = new char[fixedLenByteArraySize];
@@ -113,6 +113,15 @@ public class DataGenerator {
     writer.close();
   }
 
+  public void parquetGen() {
+	try {
+	  generateData(file_1M_BS256M_PS4M, configuration, PARQUET_2_0, BLOCK_SIZE_256M, 
+				  PAGE_SIZE_4M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION);
+	} catch (IOException e) {
+	  throw new RuntimeException(e);
+	}
+  }
+  
   public void cleanup()
   {
     deleteIfExists(configuration, file_1M);
@@ -137,6 +146,8 @@ public class DataGenerator {
       generator.generateAll();
     } else if (command.equalsIgnoreCase("cleanup")) {
       generator.cleanup();
+    } else if (command.equalsIgnoreCase("parqeutGen")) {
+      generator.parquetGen();
     } else {
       throw new IllegalArgumentException("invalid command " + command);
     }
