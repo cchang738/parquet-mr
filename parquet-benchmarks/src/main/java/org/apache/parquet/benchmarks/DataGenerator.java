@@ -122,6 +122,46 @@ public class DataGenerator {
 	}
   }
   
+  public void int32(Path outFile, 
+		  			Configuration configuration, 
+		  			ParquetProperties.WriterVersion version,
+		  			int blockSize, 
+		  			int pageSize, 
+		  			int fixedLenByteArraySize, 
+		  			CompressionCodecName codec, 
+		  			int nRows) throws IOException {
+	if (exists(configuration, outFile)) {
+	  System.out.println("File already exists " + outFile);
+	  return;
+	}
+
+	System.out.println("Generating data @ " + outFile);
+
+	MessageType schema = parseMessageType(
+		"message test { "
+				+ "required int32 int32_field_required; "
+				+ "optional int32 int32_field_optional; "
+				+ "repeated int32 int32_field_repeated; "
+				+ "} ");
+	
+	GroupWriteSupport.setSchema(schema, configuration);
+    SimpleGroupFactory f = new SimpleGroupFactory(schema);
+    ParquetWriter<Group> writer = new ParquetWriter<Group>(outFile, new GroupWriteSupport(), 
+    									codec, blockSize, pageSize, DICT_PAGE_SIZE, false, 
+    									true, version, configuration);
+
+
+    for (int i = 0; i < nRows*3; i=i+3) {
+      writer.write(
+        f.newGroup()
+         .append("int32_field_required", i)
+         .append("int32_field_optional", i+1)
+         .append("int32_field_repeated", i+2)
+      );
+    }
+    writer.close();
+  }
+  
   public void cleanup()
   {
     deleteIfExists(configuration, file_1M);
@@ -154,6 +194,9 @@ public class DataGenerator {
     } else if (command.equalsIgnoreCase("primitive_10_BS10K_PS1K")) {
         generator.generateData(primitive_10_BS10K_PS1K, configuration, PARQUET_2_0, 
       		  				BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, UNCOMPRESSED, 10);
+    } else if (command.equalsIgnoreCase("int32_10_BS10K_PS1K")) {
+    	generator.int32(new Path(TARGET_DIR + "/int32_10_BS10K_PS1K"), configuration, 
+    						PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, UNCOMPRESSED, 10);
     } else {
       throw new IllegalArgumentException("invalid command " + command);
     }
