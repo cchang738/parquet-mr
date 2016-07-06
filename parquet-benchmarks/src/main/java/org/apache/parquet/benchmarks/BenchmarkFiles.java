@@ -32,6 +32,9 @@ public class BenchmarkFiles {
   public static final Path file_1M_BS256M_PS8M = new Path(TARGET_DIR + "/PARQUET-1M-BS256M_PS8M");
   public static final Path file_1M_BS512M_PS4M = new Path(TARGET_DIR + "/PARQUET-1M-BS512M_PS4M");
   public static final Path file_1M_BS512M_PS8M = new Path(TARGET_DIR + "/PARQUET-1M-BS512M_PS8M");
+  
+  //drill parquet files
+  public static final Path primitive_1K_BS10K_PS1K = new Path(TARGET_DIR + "/primitive-1k-bs10k-ps1k");
 
   //different compression codecs
 //  public final Path parquetFile_1M_LZO = new Path("target/tests/ParquetBenchmarks/PARQUET-1M-LZO");

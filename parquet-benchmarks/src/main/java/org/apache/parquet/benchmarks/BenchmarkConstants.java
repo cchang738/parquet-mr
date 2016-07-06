@@ -33,10 +33,17 @@ public class BenchmarkConstants {
   public static final int BLOCK_SIZE_DEFAULT = DEFAULT_BLOCK_SIZE;
   public static final int BLOCK_SIZE_256M = 256 * 1024 * 1024;
   public static final int BLOCK_SIZE_512M = 512 * 1024 * 1024;
+  public static final int BLOCK_SIZE_1K = 1024;
+  public static final int BLOCK_SIZE_10K = 10 * 1024;
+  public static final int BLOCK_SIZE_100K = 100 * 1024;
+  public static final int BLOCK_SIZE_1M = 1024 * 1024;
 
   public static final int PAGE_SIZE_DEFAULT = DEFAULT_PAGE_SIZE;
   public static final int PAGE_SIZE_4M = 4 * 1024 * 1024;
   public static final int PAGE_SIZE_8M = 8 * 1024 * 1024;
+  public static final int PAGE_SIZE_1K = 1024;
+  public static final int PAGE_SIZE_10K = 10 * 1024;
+  public static final int PAGE_SIZE_100K = 100 * 1024;
 
   public static final int DICT_PAGE_SIZE = 512;
 }

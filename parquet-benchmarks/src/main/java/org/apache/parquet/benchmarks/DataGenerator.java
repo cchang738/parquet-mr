@@ -134,7 +134,7 @@ public class DataGenerator {
     deleteIfExists(configuration, file_1M_GZIP);
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     DataGenerator generator = new DataGenerator();
     if (args.length < 1) {
       System.err.println("Please specify a command (generate|cleanup).");
@@ -146,8 +146,11 @@ public class DataGenerator {
       generator.generateAll();
     } else if (command.equalsIgnoreCase("cleanup")) {
       generator.cleanup();
-    } else if (command.equalsIgnoreCase("parqeutGen")) {
+    } else if (command.equalsIgnoreCase("parquetGen")) {
       generator.parquetGen();
+    } else if (command.equalsIgnoreCase("primitive_1K_BS10K_PS1K")) {
+      generator.generateData(primitive_1K_BS10K_PS1K, configuration, PARQUET_2_0, 
+    		  				BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, UNCOMPRESSED, 1000);
     } else {
       throw new IllegalArgumentException("invalid command " + command);
     }
