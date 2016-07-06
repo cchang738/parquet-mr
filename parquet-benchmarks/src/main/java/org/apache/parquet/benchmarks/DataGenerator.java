@@ -151,6 +151,9 @@ public class DataGenerator {
     } else if (command.equalsIgnoreCase("primitive_1K_BS10K_PS1K")) {
       generator.generateData(primitive_1K_BS10K_PS1K, configuration, PARQUET_2_0, 
     		  				BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, UNCOMPRESSED, 1000);
+    } else if (command.equalsIgnoreCase("primitive_10_BS10K_PS1K")) {
+        generator.generateData(primitive_10_BS10K_PS1K, configuration, PARQUET_2_0, 
+      		  				BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, UNCOMPRESSED, 10);
     } else {
       throw new IllegalArgumentException("invalid command " + command);
     }
