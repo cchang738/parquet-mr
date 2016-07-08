@@ -162,6 +162,46 @@ public class DataGenerator {
     writer.close();
   }
   
+  public void int64(Path outFile, 
+			  Configuration configuration, 
+			  ParquetProperties.WriterVersion version,
+			  int blockSize, 
+			  int pageSize, 
+			  int fixedLenByteArraySize, 
+			  CompressionCodecName codec, 
+			  int nRows) throws IOException {
+	if (exists(configuration, outFile)) {
+	  System.out.println("File already exists " + outFile);
+	  return;
+	}
+
+	System.out.println("Generating data @ " + outFile);
+
+	MessageType schema = parseMessageType(
+		"message test { "
+				+ "required int64 int64_field_required; "
+//			+ "optional int64 int64_field_optional; "
+//			+ "repeated int64 int64_field_repeated; "
+				+ "} ");
+
+	GroupWriteSupport.setSchema(schema, configuration);
+	SimpleGroupFactory f = new SimpleGroupFactory(schema);
+	ParquetWriter<Group> writer = new ParquetWriter<Group>(outFile, new GroupWriteSupport(), 
+								codec, blockSize, pageSize, DICT_PAGE_SIZE, false, 
+								true, version, configuration);
+
+
+	for (long i = 0; i < nRows; i++) {
+	  writer.write(
+		f.newGroup()
+		.append("int64_field_required", i)
+		//.append("int64_field_optional", i+1)
+		//.append("int64_field_repeated", i+2)
+	  );
+	}
+	writer.close();
+  }
+  
   public void cleanup()
   {
     deleteIfExists(configuration, file_1M);
@@ -194,12 +234,19 @@ public class DataGenerator {
     } else if (command.equalsIgnoreCase("primitive_10_BS10K_PS1K")) {
         generator.generateData(primitive_10_BS10K_PS1K, configuration, PARQUET_2_0, 
       		  				BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, UNCOMPRESSED, 10);
-    } else if (command.equalsIgnoreCase("int32_10_BS10K_PS1K")) {
-    	generator.int32(new Path(TARGET_DIR + "/int32_10_bs10k_ps1k_uncompressed"), configuration, 
+    } else if (command.equalsIgnoreCase("int32_10_bs10k_ps1k")) {
+    	generator.int32(new Path(TARGET_DIR + "/int32_10_bs10k_ps1k_uncompressed.parquet"), configuration, 
     						PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, UNCOMPRESSED, 10);
-    	generator.int32(new Path(TARGET_DIR + "/int32_10_bs10k_ps1k_snappy"), configuration, 
+    	generator.int32(new Path(TARGET_DIR + "/int32_10_bs10k_ps1k_snappy.parquet"), configuration, 
 				PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, SNAPPY, 10);
-    	generator.int32(new Path(TARGET_DIR + "/int32_10_bs10k_ps1k_gzip"), configuration, 
+    	generator.int32(new Path(TARGET_DIR + "/int32_10_bs10k_ps1k_gzip.parquet"), configuration, 
+				PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, GZIP, 10);
+    } else if (command.equalsIgnoreCase("int64_10_bs10k_ps1k")) {
+    	generator.int32(new Path(TARGET_DIR + "/int64_10_bs10k_ps1k_uncompressed.parquet"), configuration, 
+    						PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, UNCOMPRESSED, 10);
+    	generator.int32(new Path(TARGET_DIR + "/int64_10_bs10k_ps1k_snappy.parquet"), configuration, 
+				PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, SNAPPY, 10);
+    	generator.int32(new Path(TARGET_DIR + "/int64_10_bs10k_ps1k_gzip.parquet"), configuration, 
 				PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, GZIP, 10);
     } else {
       throw new IllegalArgumentException("invalid command " + command);
