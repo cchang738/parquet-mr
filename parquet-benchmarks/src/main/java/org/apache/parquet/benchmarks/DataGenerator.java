@@ -242,11 +242,11 @@ public class DataGenerator {
     	generator.int32(new Path(TARGET_DIR + "/int32_10_bs10k_ps1k_gzip.parquet"), configuration, 
 				PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, GZIP, 10);
     } else if (command.equalsIgnoreCase("int64_10_bs10k_ps1k")) {
-    	generator.int32(new Path(TARGET_DIR + "/int64_10_bs10k_ps1k_uncompressed.parquet"), configuration, 
+    	generator.int64(new Path(TARGET_DIR + "/int64_10_bs10k_ps1k_uncompressed.parquet"), configuration, 
     						PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, UNCOMPRESSED, 10);
-    	generator.int32(new Path(TARGET_DIR + "/int64_10_bs10k_ps1k_snappy.parquet"), configuration, 
+    	generator.int64(new Path(TARGET_DIR + "/int64_10_bs10k_ps1k_snappy.parquet"), configuration, 
 				PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, SNAPPY, 10);
-    	generator.int32(new Path(TARGET_DIR + "/int64_10_bs10k_ps1k_gzip.parquet"), configuration, 
+    	generator.int64(new Path(TARGET_DIR + "/int64_10_bs10k_ps1k_gzip.parquet"), configuration, 
 				PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, GZIP, 10);
     } else {
       throw new IllegalArgumentException("invalid command " + command);
