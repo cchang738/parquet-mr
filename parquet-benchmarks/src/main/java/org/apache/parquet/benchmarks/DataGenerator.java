@@ -35,7 +35,7 @@ import java.util.Arrays;
 import static java.util.UUID.randomUUID;
 import static org.apache.parquet.benchmarks.BenchmarkUtils.deleteIfExists;
 import static org.apache.parquet.benchmarks.BenchmarkUtils.exists;
-import static org.apache.parquet.column.ParquetProperties.WriterVersion.PARQUET_2_0;
+import static org.apache.parquet.column.ParquetProperties.WriterVersion;
 import static org.apache.parquet.hadoop.metadata.CompressionCodecName.GZIP;
 import static org.apache.parquet.hadoop.metadata.CompressionCodecName.SNAPPY;
 import static org.apache.parquet.hadoop.metadata.CompressionCodecName.UNCOMPRESSED;
@@ -46,19 +46,20 @@ import static org.apache.parquet.benchmarks.BenchmarkFiles.*;
 public class DataGenerator {
 
   public void generateAll() {
+	  ParquetProperties.WriterVersion version = WriterVersion.PARQUET_1_0;
     try {
-      generateData(file_1M, configuration, PARQUET_2_0, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION);
+      generateData(file_1M, configuration, version, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION);
 
       //generate data for different block and page sizes
-      generateData(file_1M_BS256M_PS4M, configuration, PARQUET_2_0, BLOCK_SIZE_256M, PAGE_SIZE_4M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION);
-      generateData(file_1M_BS256M_PS8M, configuration, PARQUET_2_0, BLOCK_SIZE_256M, PAGE_SIZE_8M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION);
-      generateData(file_1M_BS512M_PS4M, configuration, PARQUET_2_0, BLOCK_SIZE_512M, PAGE_SIZE_4M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION);
-      generateData(file_1M_BS512M_PS8M, configuration, PARQUET_2_0, BLOCK_SIZE_512M, PAGE_SIZE_8M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION);
+      generateData(file_1M_BS256M_PS4M, configuration, version, BLOCK_SIZE_256M, PAGE_SIZE_4M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION);
+      generateData(file_1M_BS256M_PS8M, configuration, version, BLOCK_SIZE_256M, PAGE_SIZE_8M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION);
+      generateData(file_1M_BS512M_PS4M, configuration, version, BLOCK_SIZE_512M, PAGE_SIZE_4M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION);
+      generateData(file_1M_BS512M_PS8M, configuration, version, BLOCK_SIZE_512M, PAGE_SIZE_8M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION);
 
       //generate data for different codecs
 //      generateData(parquetFile_1M_LZO, configuration, PARQUET_2_0, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, LZO, ONE_MILLION);
-      generateData(file_1M_SNAPPY, configuration, PARQUET_2_0, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, SNAPPY, ONE_MILLION);
-      generateData(file_1M_GZIP, configuration, PARQUET_2_0, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, GZIP, ONE_MILLION);
+      generateData(file_1M_SNAPPY, configuration, version, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, SNAPPY, ONE_MILLION);
+      generateData(file_1M_GZIP, configuration, version, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, GZIP, ONE_MILLION);
     }
     catch (IOException e) {
       throw new RuntimeException(e);
@@ -115,7 +116,7 @@ public class DataGenerator {
 
   public void parquetGen() {
 	try {
-	  generateData(file_1M_BS256M_PS4M, configuration, PARQUET_2_0, BLOCK_SIZE_256M, 
+	  generateData(file_1M_BS256M_PS4M, configuration, WriterVersion.PARQUET_2_0, BLOCK_SIZE_256M, 
 				  PAGE_SIZE_4M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION);
 	} catch (IOException e) {
 	  throw new RuntimeException(e);
@@ -229,25 +230,25 @@ public class DataGenerator {
     } else if (command.equalsIgnoreCase("parquetGen")) {
       generator.parquetGen();
     } else if (command.equalsIgnoreCase("primitive_1K_BS10K_PS1K")) {
-      generator.generateData(primitive_1K_BS10K_PS1K, configuration, PARQUET_2_0, 
+      generator.generateData(primitive_1K_BS10K_PS1K, configuration, WriterVersion.PARQUET_2_0, 
     		  				BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, UNCOMPRESSED, 1000);
     } else if (command.equalsIgnoreCase("primitive_10_BS10K_PS1K")) {
-        generator.generateData(primitive_10_BS10K_PS1K, configuration, PARQUET_2_0, 
+        generator.generateData(primitive_10_BS10K_PS1K, configuration, WriterVersion.PARQUET_2_0, 
       		  				BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, UNCOMPRESSED, 10);
     } else if (command.equalsIgnoreCase("int32_10_bs10k_ps1k")) {
     	generator.int32(new Path(TARGET_DIR + "/int32_10_bs10k_ps1k_uncompressed.parquet"), configuration, 
-    						PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, UNCOMPRESSED, 10);
+    			WriterVersion.PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, UNCOMPRESSED, 10);
     	generator.int32(new Path(TARGET_DIR + "/int32_10_bs10k_ps1k_snappy.parquet"), configuration, 
-				PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, SNAPPY, 10);
+    			WriterVersion.PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, SNAPPY, 10);
     	generator.int32(new Path(TARGET_DIR + "/int32_10_bs10k_ps1k_gzip.parquet"), configuration, 
-				PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, GZIP, 10);
+    			WriterVersion.PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, GZIP, 10);
     } else if (command.equalsIgnoreCase("int64_10_bs10k_ps1k")) {
     	generator.int64(new Path(TARGET_DIR + "/int64_10_bs10k_ps1k_uncompressed.parquet"), configuration, 
-    						PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, UNCOMPRESSED, 10);
+    			WriterVersion.PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, UNCOMPRESSED, 10);
     	generator.int64(new Path(TARGET_DIR + "/int64_10_bs10k_ps1k_snappy.parquet"), configuration, 
-				PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, SNAPPY, 10);
+    			WriterVersion.PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, SNAPPY, 10);
     	generator.int64(new Path(TARGET_DIR + "/int64_10_bs10k_ps1k_gzip.parquet"), configuration, 
-				PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, GZIP, 10);
+    			WriterVersion.PARQUET_2_0, BLOCK_SIZE_10K, PAGE_SIZE_1K, 24, GZIP, 10);
     } else {
       throw new IllegalArgumentException("invalid command " + command);
     }
