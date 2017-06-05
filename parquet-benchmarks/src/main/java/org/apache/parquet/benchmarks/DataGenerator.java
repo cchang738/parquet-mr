@@ -31,6 +31,7 @@ import org.apache.parquet.schema.MessageType;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Random;
 
 import static java.util.UUID.randomUUID;
 import static org.apache.parquet.benchmarks.BenchmarkUtils.deleteIfExists;
@@ -65,6 +66,85 @@ public class DataGenerator {
       throw new RuntimeException(e);
     }
   }
+  
+  public void generateHaggAll() {
+	  ParquetProperties.WriterVersion version = WriterVersion.PARQUET_1_0;
+    try {
+      generateHaggData(file_1M, configuration, version, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION, 1000);
+
+      //generate data for different block and page sizes
+      generateHaggData(file_1M_BS256M_PS4M, configuration, version, BLOCK_SIZE_256M, PAGE_SIZE_4M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION, 1000);
+      generateHaggData(file_1M_BS256M_PS8M, configuration, version, BLOCK_SIZE_256M, PAGE_SIZE_8M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION, 1000);
+      generateHaggData(file_1M_BS512M_PS4M, configuration, version, BLOCK_SIZE_512M, PAGE_SIZE_4M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION, 1000);
+      generateHaggData(file_1M_BS512M_PS8M, configuration, version, BLOCK_SIZE_512M, PAGE_SIZE_8M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION, 1000);
+
+      //generate data for different codecs
+//      generateData(parquetFile_1M_LZO, configuration, PARQUET_2_0, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, LZO, ONE_MILLION);
+      generateHaggData(file_1M_SNAPPY, configuration, version, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, SNAPPY, ONE_MILLION, 1000);
+      generateHaggData(file_1M_GZIP, configuration, version, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, GZIP, ONE_MILLION, 1000);
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }  
+  public void generateHaggData(Path outFile, Configuration configuration, ParquetProperties.WriterVersion version,
+		  int blockSize, int pageSize, int fixedLenByteArraySize, CompressionCodecName codec, int nRows, int nGroups) throws IOException
+  {
+	MessageType schema = parseMessageType(
+	     "message test { "
+	                    + "required int64 row_count; "
+	                    + "required int32 gby_int32; "
+	                    + "required binary gby_string (UTF8);"
+	                    + "required float gby_float; "
+	                    + "required int32 gby_date (DATE); "
+	                    + "required int64 gby_timestamp (TIMESTAMP_MILLIS); "
+	                    + "required binary gby_same (UTF8); "
+	                    + "optional binary gby_rand (UTF8); "
+	                    + "required int32 int32_field; "
+	                    + "required int64 int64_field; "
+	                    + "required boolean boolean_field; "
+	                    + "required float float_field; "
+	                    + "required double double_field; "
+	                    + "required fixed_len_byte_array(" + fixedLenByteArraySize +") flba_field; "
+	                    + "required int96 int96_field; "
+	                    + "} ");
+	
+    GroupWriteSupport.setSchema(schema, configuration);
+    SimpleGroupFactory f = new SimpleGroupFactory(schema);
+    ParquetWriter<Group> writer = new ParquetWriter<Group>(outFile, new GroupWriteSupport(), codec, blockSize,
+                                                           pageSize, DICT_PAGE_SIZE, false, true, version, configuration);
+
+    //generate some data for the fixed len byte array field
+    char[] chars = new char[fixedLenByteArraySize];
+    Arrays.fill(chars, '*');
+    String gbyString = "The range to be filled extends from index fromIndex, inclusive, to index toIndex, exclusive.";
+    Random rand = new Random();
+    long ll = 1l;
+    float fl = (float) 0.02;
+    double dl = 0.06;
+
+    for (int i = 0; i < nRows; i++) {
+      writer.write(
+        f.newGroup()
+          .append("row_count", i)
+          .append("gby_int32", i % nGroups)
+          .append("gby_string", gbyString.substring(0,i % nGroups))
+          .append("gby_float", fl + (i % nGroups))
+          .append("gby_date",i % nGroups)
+          .append("gby_timestamp", ll + (i % nGroups))
+          .append("gby_same", "same value")
+          .append("gby_rand", gbyString.substring(0, rand.nextInt(gbyString.length())))
+          .append("int32_field", i)
+          .append("int64_field", ll + i)
+          .append("boolean_field", true)
+          .append("float_field", fl + i)
+          .append("double_field", dl + i)
+          .append("flba_field", new String(chars))
+          .append("int96_field", Binary.fromConstantByteArray(new byte[12]))
+      );
+    }
+    writer.close();
+  }
 
   public void generateData(Path outFile, Configuration configuration, ParquetProperties.WriterVersion version,
                            int blockSize, int pageSize, int fixedLenByteArraySize, CompressionCodecName codec, int nRows)
@@ -79,7 +159,7 @@ public class DataGenerator {
 
     MessageType schema = parseMessageType(
             "message test { "
-                    + "required binary binary_field; "
+                    + "required binary binary_field (UTF8); "
                     + "required int32 int32_field; "
                     + "required int64 int64_field; "
                     + "required boolean boolean_field; "
@@ -225,6 +305,8 @@ public class DataGenerator {
     String command = args[0];
     if (command.equalsIgnoreCase("generate")) {
       generator.generateAll();
+    } else if (command.equalsIgnoreCase("generateHagg")) {
+      generator.generateHaggAll();
     } else if (command.equalsIgnoreCase("cleanup")) {
       generator.cleanup();
     } else if (command.equalsIgnoreCase("parquetGen")) {
