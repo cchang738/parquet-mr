@@ -126,7 +126,7 @@ public class DataGenerator {
     for (int i = 0; i < nRows; i++) {
       writer.write(
         f.newGroup()
-          .append("row_count", i)
+          .append("row_count", (long) i)
           .append("gby_int32", i % nGroups)
           .append("gby_string", gbyString.substring(0,i % nGroups))
           .append("gby_float", fl + (i % nGroups))
