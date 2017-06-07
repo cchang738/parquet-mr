@@ -67,21 +67,21 @@ public class DataGenerator {
     }
   }
   
-  public void generateHaggAll() {
+  public void generateHaggAll(int nGroups, int nRows) {
 	  ParquetProperties.WriterVersion version = WriterVersion.PARQUET_1_0;
     try {
-      generateHaggData(file_1M, configuration, version, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION, 1000);
+      generateHaggData(file_1M, configuration, version, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, nRows, nGroups);
 
       //generate data for different block and page sizes
-      generateHaggData(file_1M_BS256M_PS4M, configuration, version, BLOCK_SIZE_256M, PAGE_SIZE_4M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION, 1000);
-      generateHaggData(file_1M_BS256M_PS8M, configuration, version, BLOCK_SIZE_256M, PAGE_SIZE_8M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION, 1000);
-      generateHaggData(file_1M_BS512M_PS4M, configuration, version, BLOCK_SIZE_512M, PAGE_SIZE_4M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION, 1000);
-      generateHaggData(file_1M_BS512M_PS8M, configuration, version, BLOCK_SIZE_512M, PAGE_SIZE_8M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, ONE_MILLION, 1000);
+      //generateHaggData(file_1M_BS256M_PS4M, configuration, version, BLOCK_SIZE_256M, PAGE_SIZE_4M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, nRows, nGroups);
+      //generateHaggData(file_1M_BS256M_PS8M, configuration, version, BLOCK_SIZE_256M, PAGE_SIZE_8M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, nRows, nGroups);
+      //generateHaggData(file_1M_BS512M_PS4M, configuration, version, BLOCK_SIZE_512M, PAGE_SIZE_4M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, nRows, nGroups);
+      //generateHaggData(file_1M_BS512M_PS8M, configuration, version, BLOCK_SIZE_512M, PAGE_SIZE_8M, FIXED_LEN_BYTEARRAY_SIZE, UNCOMPRESSED, nRows, nGroups);
 
       //generate data for different codecs
-//      generateData(parquetFile_1M_LZO, configuration, PARQUET_2_0, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, LZO, ONE_MILLION);
-      generateHaggData(file_1M_SNAPPY, configuration, version, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, SNAPPY, ONE_MILLION, 1000);
-      generateHaggData(file_1M_GZIP, configuration, version, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, GZIP, ONE_MILLION, 1000);
+      //generateData(parquetFile_1M_LZO, configuration, PARQUET_2_0, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, LZO, ONE_MILLION);
+      //generateHaggData(file_1M_SNAPPY, configuration, version, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, SNAPPY, nRows, nGroups);
+      //generateHaggData(file_1M_GZIP, configuration, version, BLOCK_SIZE_DEFAULT, PAGE_SIZE_DEFAULT, FIXED_LEN_BYTEARRAY_SIZE, GZIP, nRows, nGroups);
     }
     catch (IOException e) {
       throw new RuntimeException(e);
@@ -94,6 +94,7 @@ public class DataGenerator {
 	     "message test { "
 	                    + "required int64 row_count; "
 	                    + "required int32 gby_int32; "
+	                    + "required int32 gby_int32_rand; "
 	                    + "required binary gby_string (UTF8);"
 	                    + "required float gby_float; "
 	                    + "required int32 gby_date (DATE); "
@@ -102,9 +103,12 @@ public class DataGenerator {
 	                    + "optional binary gby_rand (UTF8); "
 	                    + "required int32 int32_field; "
 	                    + "required int64 int64_field; "
+	                    + "required int64 int64_rand; "
 	                    + "required boolean boolean_field; "
 	                    + "required float float_field; "
+	                    + "required float float_rand; "
 	                    + "required double double_field; "
+	                    + "required double double_rand; "
 	                    + "required fixed_len_byte_array(" + fixedLenByteArraySize +") flba_field; "
 	                    + "required int96 int96_field; "
 	                    + "} ");
@@ -119,7 +123,6 @@ public class DataGenerator {
     Arrays.fill(chars, '*');
     String gbyString = "The range to be filled extends from index fromIndex, inclusive, to index toIndex, exclusive.";
     Random rand = new Random();
-    long ll = 1l;
     float fl = (float) 0.02;
     double dl = 0.06;
 
@@ -128,17 +131,21 @@ public class DataGenerator {
         f.newGroup()
           .append("row_count", (long) i)
           .append("gby_int32", i % nGroups)
+          .append("gby_int32_rand", rand.nextInt(nGroups))
           .append("gby_string", gbyString.substring(0, 1 + (i % gbyString.length())))
           .append("gby_float", fl + (i % nGroups))
           .append("gby_date",i % nGroups)
-          .append("gby_timestamp", ll + (i % nGroups))
+          .append("gby_timestamp", (long) (i % nGroups))
           .append("gby_same", "same value")
           .append("gby_rand", gbyString.substring(0, 1 + rand.nextInt(gbyString.length())))
           .append("int32_field", i)
-          .append("int64_field", ll + i)
+          .append("int64_field", (long) (i * 10))
+          .append("int64_rand", rand.nextLong())
           .append("boolean_field", true)
           .append("float_field", fl + i)
+          .append("float_rand", rand.nextFloat())
           .append("double_field", dl + i)
+          .append("double_rand", rand.nextDouble())
           .append("flba_field", new String(chars))
           .append("int96_field", Binary.fromConstantByteArray(new byte[12]))
       );
@@ -298,7 +305,7 @@ public class DataGenerator {
   public static void main(String[] args) throws IOException {
     DataGenerator generator = new DataGenerator();
     if (args.length < 1) {
-      System.err.println("Please specify a command (generate|cleanup).");
+      System.err.println("Please specify a command (generate|generateHagg|parquetGen|cleanup).");
       System.exit(1);
     }
 
@@ -306,7 +313,7 @@ public class DataGenerator {
     if (command.equalsIgnoreCase("generate")) {
       generator.generateAll();
     } else if (command.equalsIgnoreCase("generateHagg")) {
-      generator.generateHaggAll();
+      generator.generateHaggAll(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
     } else if (command.equalsIgnoreCase("cleanup")) {
       generator.cleanup();
     } else if (command.equalsIgnoreCase("parquetGen")) {
