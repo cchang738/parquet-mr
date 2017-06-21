@@ -109,8 +109,8 @@ public class DataGenerator {
 	                    + "required float float_rand; "
 	                    + "required double double_field; "
 	                    + "required double double_rand; "
-	                    + "required fixed_len_byte_array(" + fixedLenByteArraySize +") flba_field; "
-	                    + "required int96 int96_field; "
+//	                    + "required fixed_len_byte_array(" + fixedLenByteArraySize +") flba_field; "
+//	                    + "required int96 int96_field; "
 	                    + "} ");
 	
     GroupWriteSupport.setSchema(schema, configuration);
@@ -131,23 +131,23 @@ public class DataGenerator {
         f.newGroup()
           .append("row_count", (long) i)
           .append("gby_int32", i % nGroups)
-          .append("gby_int32_rand", rand.nextInt(nGroups))
+          .append("gby_int32_rand", rand.nextInt(50))
           .append("gby_string", gbyString.substring(0, 1 + (i % gbyString.length())))
-          .append("gby_float", fl + (i % nGroups))
-          .append("gby_date",i % nGroups)
+          .append("gby_float", (float) (i % (nGroups/100)))
+          .append("gby_date",6000 + (i % 50))
           .append("gby_timestamp", (long) (i % nGroups))
           .append("gby_same", "same value")
           .append("gby_rand", gbyString.substring(0, 1 + rand.nextInt(gbyString.length())))
           .append("int32_field", i)
           .append("int64_field", (long) (i * 10))
           .append("int64_rand", rand.nextLong())
-          .append("boolean_field", true)
+          .append("boolean_field", rand.nextBoolean())
           .append("float_field", fl + i)
           .append("float_rand", rand.nextFloat())
           .append("double_field", dl + i)
           .append("double_rand", rand.nextDouble())
-          .append("flba_field", new String(chars))
-          .append("int96_field", Binary.fromConstantByteArray(new byte[12]))
+//          .append("flba_field", new String(chars))
+//          .append("int96_field", Binary.fromConstantByteArray(new byte[12]))
       );
     }
     writer.close();
