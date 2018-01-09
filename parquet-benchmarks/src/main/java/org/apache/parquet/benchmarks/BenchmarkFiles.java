@@ -27,6 +27,12 @@ public class BenchmarkFiles {
   public static final String TARGET_DIR = "target/tests/ParquetBenchmarks";
   public static final Path file_1M = new Path(TARGET_DIR + "/PARQUET-1M");
 
+  //hash join files
+  public static final Path hash_join_order = new Path(TARGET_DIR + "/hash_join_order.parquet");
+  public static final Path hash_join_customer = new Path(TARGET_DIR + "/hash_join_customer.parquet");
+  public static final Path hash_join_store = new Path(TARGET_DIR + "/hash_join_store.parquet");
+  public static final Path hash_join_j = new Path(TARGET_DIR + "/hash_join_j.parquet");
+  
   //different block and page sizes
   public static final Path file_1M_BS256M_PS4M = new Path(TARGET_DIR + "/PARQUET-1M-BS256M_PS4M");
   public static final Path file_1M_BS256M_PS8M = new Path(TARGET_DIR + "/PARQUET-1M-BS256M_PS8M");
